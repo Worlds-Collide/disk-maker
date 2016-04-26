@@ -3,9 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np 
 import matplotlib.pyplot as plt
 
-import logging
-logging.basicConfig()  # Avoid "No handlers could be found for logger" warning
-logger = logging.getLogger(__name__)
+from . import logger
 
 def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, returnFigure=False):
     """
