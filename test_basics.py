@@ -1,4 +1,4 @@
-"""Basic sanity checks to verify that ktransit works.
+"""Basic sanity checks to verify that diskmaker works.
 To run, simply type "py.test".
 """
 
