@@ -7,22 +7,38 @@ from . import logger
 
 def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, returnFigure=False):
     """
-    the purpose of this code is to calculate the position of bodies
-    in a disk matching a given surface density profile
+    calculate the position of bodies in a disk matching a given surface density profile
 
     the code assumes a bimodal mass distribution with small and large bodies
     commonly refered to as planetesimals and embryos
 
-    args:
-        totalMass:: the desired total mass in the disk in earth-masses
-        smallMass:: the mass of each small body in earth-masses
-        largeMass:: the mass of each large body in earth-masses
-        nSmall:: the number of small bodies
-        inner:: the inner orbital distance of the disk in AU
-        outer:: the outer orbital distance of the disk in AU
-        alpha:: the disk surface density profile where
-            sigma propto mass**-alpha
-        returnFigure:: make a fugure showing the mass distribution
+    Parameters
+    ----------        
+    totalMass : float
+        the desired total mass in the disk in earth-masses
+    smallMass, largeMass : float
+        the mass of each small and large body in earth-masses
+    nSmall : int
+        the number of small bodies
+    inner, outer : float
+        the inner and outer orbital distance of the disk in AU
+    alpha : float
+        the disk surface density profile where
+        sigma propto mass**-alpha
+    returnFigure : bool, optional
+        make a fugure showing the mass distribution
+
+    Returns
+    ----------   
+    finalSemi: array
+        the distribution of semimajor axes of the bodies
+    finalMass: array
+        the masses of the bodies at the given semimajor axes
+    fig: figure object
+        if the returnFigure keyword is True this is a matplotlib figure object
+
+    a warning will be printed if the final mass in bodies is more than 5 percent discrepent
+    from the requested total mass
     """
 
     nLarge = int((totalMass - (nSmall * smallMass)) / largeMass)
