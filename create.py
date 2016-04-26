@@ -1,10 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import numpy as np 
+import matplotlib.pyplot as plt
 
-from . import logger
+import logging
+logging.basicConfig()  # Avoid "No handlers could be found for logger" warning
+logger = logging.getLogger(__name__)
 
-def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha):
+def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, returnFigure=False):
     """
     the purpose of this code is to calculate the position of bodies
     in a disk matching a given surface density profile
@@ -57,11 +60,21 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha):
 
     pos = len(unidist) / nLarge 
     for i in range(nLarge):
-        maskLarge[int(i*pos)+(0.5*pos)] = True
-        maskSmall[int(i*pos)+(0.5*pos)-(massMultiplier/2):int(i*pos)+(0.5*pos)+(massMultiplier/2)] = False
+        maskLarge[int((i*pos)+(0.5*pos))] = True
+        maskSmall[int((i*pos)+(0.5*pos)-(massMultiplier/2)):int((i*pos)+(0.5*pos)+(massMultiplier/2))] = False
 
-    finalSemi = np.r_[spacings[masklarge],spacings[masksmall]]
-    finalMass = np.r_[np.ones_like(spacings[masklarge]) * largemass, np.ones_like(spacings[masksmall]) * smallmass]
+    finalSemi = np.r_[spacings[maskLarge],spacings[maskSmall]]
+    finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, np.ones_like(spacings[maskSmall]) * smallMass]
+
+    if returnFigure:
+        fig, ax1  = plt.subplots(1, 1, figsize=[6,7])
+        ax1.scatter(np.arange(unidist.shape[0])[maskLarge],spacings[maskLarge],s=300,color='r',alpha=0.5,edgecolors='k')
+        ax1.scatter(np.arange(unidist.shape[0])[maskSmall],spacings[maskSmall])
+        ax1.grid()
+        ax1.set_xlabel('Body number')
+        ax1.set_ylabel('Semimajor axis')
+
+        return finalSemi, finalMass, fig
 
     return finalSemi, finalMass
 
@@ -78,10 +91,8 @@ if __name__ == '__main__':
     alpha = 3/2
     #####
 
-    calcSemis(totalmass, smallmass, largemass, nsmallbodies, inner, outer, alpha)
+    finalSemi, finalMass, fig = calcSemis(totalmass, smallmass, 
+        largemass, nsmallbodies, inner, outer, alpha, returnFigure=True)
+    fig.show()
 
-    plt.scatter(np.arange(unidist.shape[0])[masklarge],spacings[masklarge],s=300,color='r',alpha=0.5,edgecolors='k')
-    plt.scatter(np.arange(unidist.shape[0])[masksmall],spacings[masksmall])
-    plt.grid()
-    plt.xlabel('Body number')
-    plt.ylabel('Semimajor axis')
+
