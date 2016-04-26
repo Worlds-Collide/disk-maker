@@ -22,6 +22,7 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, retu
         outer:: the outer orbital distance of the disk in AU
         alpha:: the disk surface density profile where
             sigma propto mass**-alpha
+        returnFigure:: make a fugure showing the mass distribution
     """
 
     nLarge = int((totalMass - (nSmall * smallMass)) / largeMass)
