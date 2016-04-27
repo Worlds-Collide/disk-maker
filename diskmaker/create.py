@@ -36,6 +36,7 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, retu
         the masses of the bodies at the given semimajor axes
     fig: figure object
         if the returnFigure keyword is True this is a matplotlib figure object
+        depicting the 
 
     a warning will be printed if the final mass in bodies is more than 5 percent discrepent
     from the requested total mass
@@ -82,16 +83,29 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, retu
     finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, np.ones_like(spacings[maskSmall]) * smallMass]
 
     if returnFigure:
-        fig, ax1  = plt.subplots(1, 1, figsize=[6,7])
+        fig, [ax1,ax2]  = plt.subplots(2, 1, figsize=[9,7])
         ax1.scatter(np.arange(unidist.shape[0])[maskLarge],spacings[maskLarge],s=300,color='r',alpha=0.5,edgecolors='k')
         ax1.scatter(np.arange(unidist.shape[0])[maskSmall],spacings[maskSmall])
         ax1.grid()
         ax1.set_xlabel('Body number')
         ax1.set_ylabel('Semimajor axis')
 
+        idx = np.argsort(np.r_[spacings[maskLarge],spacings[maskSmall]])
+        ax2.plot(finalSemi[idx],np.cumsum(finalMass[idx]), '.-')
+
+        n = 1000
+        npm = totalMass / n
+        x = np.linspace(0,1,n)
+        y = ((x ** (alpha * 0.5)) * (outer-inner)) + inner
+        ax2.plot(y, np.cumsum(np.ones_like(y) * npm), color='r')
+        ax2.set_xlabel('Cumulative mass')
+        ax2.set_ylabel('Semimajor axis')
+
+
         return finalSemi, finalMass, fig
 
     return finalSemi, finalMass
+
 
 
 if __name__ == '__main__':
