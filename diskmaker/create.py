@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 from . import logger
 
-def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, returnFigure=False):
+def calcSemis(totalMass, smallMass, largeMass, nSmall, 
+    inner, outer, alpha, returnFigure=False):
     """
     calculate the position of bodies in a disk matching a given surface density profile
 
@@ -77,20 +78,23 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, retu
     pos = len(unidist) / nLarge 
     for i in range(nLarge):
         maskLarge[int((i*pos)+(0.5*pos))] = True
-        maskSmall[int((i*pos)+(0.5*pos)-(massMultiplier/2)):int((i*pos)+(0.5*pos)+(massMultiplier/2))] = False
+        maskSmall[int((i*pos)+(0.5*pos)-(massMultiplier/2)):
+            int((i*pos)+(0.5*pos)+(massMultiplier/2))] = False
 
+    idx = np.argsort(np.r_[spacings[maskLarge],spacings[maskSmall]])
     finalSemi = np.r_[spacings[maskLarge],spacings[maskSmall]]
-    finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, np.ones_like(spacings[maskSmall]) * smallMass]
+    finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, 
+        np.ones_like(spacings[maskSmall]) * smallMass]
 
     if returnFigure:
         fig, [ax1,ax2]  = plt.subplots(2, 1, figsize=[9,7])
-        ax1.scatter(np.arange(unidist.shape[0])[maskLarge],spacings[maskLarge],s=300,color='r',alpha=0.5,edgecolors='k')
+        ax1.scatter(np.arange(unidist.shape[0])[maskLarge],spacings[maskLarge],
+            s=300,color='r',alpha=0.5,edgecolors='k')
         ax1.scatter(np.arange(unidist.shape[0])[maskSmall],spacings[maskSmall])
         ax1.grid()
         ax1.set_xlabel('Body number')
         ax1.set_ylabel('Semimajor axis')
 
-        idx = np.argsort(np.r_[spacings[maskLarge],spacings[maskSmall]])
         ax2.plot(finalSemi[idx],np.cumsum(finalMass[idx]), '.-')
 
         n = 1000
@@ -102,11 +106,53 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall, inner, outer, alpha, retu
         ax2.set_ylabel('Semimajor axis')
 
 
-        return finalSemi, finalMass, fig
+        return finalSemi[idx], finalMass[idx], fig
 
-    return finalSemi, finalMass
+    return finalSemi[idx], finalMass[idx]
 
 
+def calcMutualHill(a1, a2, m1, m2, mstar=1.0):
+    """ calculate the mutual hill radius of to bodies
+
+    Parameters
+    ----------        
+    a1, a2 : float
+        semimajor axis of bodies m1 and m2
+        in AU
+    m1, m2 : float
+        mass of bodies m1 and m2 in earth-masses
+    mstar : float, optional
+        mass of the central star in solar-masses
+
+    Returns
+    ----------   
+    mutualHill: float
+        the mutual hill radius
+    """
+    au2meter = 1.496E11
+    mearth2kg = 5.9742E24
+    a1_si = au2meter * a1
+    a2_si = au2meter * a2 
+    m1_si = mearth2kg * m1
+    m2_si = mearth2kg * m2
+    mstar_si = 1.9889E30 * mstar
+
+    mutualHill = (0.5 * (a1_si + a2_si) * 
+        ((m1_si + m2_si)/(3 * mstar_si))**(1/3)) / au2meter
+    return mutualHill
+
+def writeHead():
+    """write a header out in the format of a Mercury big.in file
+    """
+    
+    headstr = """)O+_06 Big-body initial data  (WARNING: Do not delete this line!!)
+    ) Lines beginning with `)' are ignored.
+    )---------------------------------------------------
+    style (Cartesian, Asteroidal, Cometary) = Asteroidal
+    epoch (in days) = 0.0
+    )---------------------------------------------------------------------
+    """
+    return headstr
 
 if __name__ == '__main__':
 
@@ -114,7 +160,7 @@ if __name__ == '__main__':
     totalmass = 5.0
     smallmass = 0.01
     largemass = 0.1
-    nsmallbodies = 200
+    nsmallbodies = 260
     inner = 0.2
     outer = 4.0
     alpha = 3/2
