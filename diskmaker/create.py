@@ -212,7 +212,7 @@ def createBigin(totalMass, smallMass, largeMass, nSmall,
     earthmass2sunmass = 3.003467e-6
     for i,a in enumerate(finalSemi):
         bodyname = bodyType[i] + '{:04}'.format(i)
-        outstr += writeBody(bodyname, finalMass[i]/earthmass2sunmass, finalSemi[i], 
+        outstr += writeBody(bodyname, finalMass[i]*earthmass2sunmass, finalSemi[i], 
                         ecc[i], inc[i], littleOm[i], bigOm[i], meananom[i])
 
     return outstr
