@@ -86,7 +86,7 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall,
     finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, 
         np.ones_like(spacings[maskSmall]) * smallMass]
 
-    bodyType = np.where(maskLarge, 'EM', 'PL')
+    bodyType = np.where(finalMass > smallMass, 'EM', 'PL')
 
     if returnFigure:
         fig, [ax1,ax2]  = plt.subplots(2, 1, figsize=[9,7])
