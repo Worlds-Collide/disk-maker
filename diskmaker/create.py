@@ -86,6 +86,8 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall,
     finalMass = np.r_[np.ones_like(spacings[maskLarge]) * largeMass, 
         np.ones_like(spacings[maskSmall]) * smallMass]
 
+    bodyType = np.where(maskLarge, 'EM', 'PL')
+
     if returnFigure:
         fig, [ax1,ax2]  = plt.subplots(2, 1, figsize=[9,7])
         ax1.scatter(np.arange(unidist.shape[0])[maskLarge],spacings[maskLarge],
@@ -106,9 +108,10 @@ def calcSemis(totalMass, smallMass, largeMass, nSmall,
         ax2.set_ylabel('Semimajor axis')
 
 
-        return finalSemi[idx], finalMass[idx], fig
+        return finalSemi[idx], finalMass[idx], bodyType[idx], fig
 
-    return finalSemi[idx], finalMass[idx]
+
+    return finalSemi[idx], finalMass[idx], bodyType[idx]
 
 
 def calcMutualHill(a1, a2, m1, m2, mstar=1.0):
@@ -141,18 +144,82 @@ def calcMutualHill(a1, a2, m1, m2, mstar=1.0):
         ((m1_si + m2_si)/(3 * mstar_si))**(1/3)) / au2meter
     return mutualHill
 
+def drawEIOoM(size=1,**kwargs):
+    try:
+        ecc = kwargs['ecc']
+    except KeyError:
+        ecc = np.random.uniform(0,0.01, size=size)
+
+    try:
+        inc = kwargs['inc']
+    except KeyError:
+        inc = np.random.uniform(0,0.5, size=size)
+
+    try:
+        littleOm = kwargs['littleOm']
+    except KeyError:
+        littleOm = np.random.uniform(0,360, size=size)
+
+    try:
+        bigOm = kwargs['bigOm']
+    except KeyError:
+        bigOm = np.random.uniform(0,360, size=size)
+
+    try:
+        meananom = kwargs['meananom']
+    except KeyError:
+        meananom = np.random.uniform(0,360, size=size)
+
+    return ecc, inc, littleOm, bigOm, meananom
+
+
+
+
 def writeHead():
     """write a header out in the format of a Mercury big.in file
     """
     
     headstr = """)O+_06 Big-body initial data  (WARNING: Do not delete this line!!)
-    ) Lines beginning with `)' are ignored.
-    )---------------------------------------------------
-    style (Cartesian, Asteroidal, Cometary) = Asteroidal
-    epoch (in days) = 0.0
-    )---------------------------------------------------------------------
-    """
+) Lines beginning with `)' are ignored.
+)---------------------------------------------------
+style (Cartesian, Asteroidal, Cometary) = Asteroidal
+epoch (in days) = 0.0
+)---------------------------------------------------------------------
+"""
     return headstr
+
+def writeBody(bodyname, mass, semimajor, 
+    ecc, inc, littleOm, bigOm, meananom):
+    """write out a line for a single body in format of Mercury big.in file
+    """
+    bodystr= """ {} m={:.6e} r=0.1 d=3
+ {:.2e} {:.7e} {:.4e} {:.4e} {:.4e} {:.4e} 0.0 0.0 0.0
+""".format(bodyname, mass, semimajor, ecc, inc, littleOm, bigOm, meananom)
+    return bodystr
+
+def createBigin(totalMass, smallMass, largeMass, nSmall, 
+    inner, outer, alpha, ):
+    
+    finalSemi, finalMass, bodyType = calcSemis(totalMass, smallMass, 
+        largeMass, nSmall, inner, outer, alpha)
+
+    nbodies = finalSemi.shape[0]
+    if nbodies > 9999:
+        logger.error('Too many bodies, need to change code in name bodies')
+    ecc, inc, littleOm, bigOm, meananom = drawEIOoM(size=nbodies)
+
+    outstr = writeHead()
+
+    for i,a in enumerate(finalSemi):
+        bodyname = bodyType[i] + '{:04}'.format(i)
+        outstr += writeBody(bodyname, finalMass[i], finalSemi[i], 
+                        ecc[i], inc[i], littleOm[i], bigOm[i], meananom[i])
+
+    return outstr
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -166,7 +233,7 @@ if __name__ == '__main__':
     alpha = 3/2
     #####
 
-    finalSemi, finalMass, fig = calcSemis(totalmass, smallmass, 
+    finalSemi, finalMass, bodyType, fig = calcSemis(totalmass, smallmass, 
         largemass, nsmallbodies, inner, outer, alpha, returnFigure=True)
     fig.show()
 

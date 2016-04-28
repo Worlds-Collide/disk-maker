@@ -25,7 +25,7 @@ def test_create():
     alpha = 3/2
     #####
 
-    finalSemi, finalMass, fig = calcSemis(totalmass, smallmass, 
+    finalSemi, finalMass, bodyType, fig = calcSemis(totalmass, smallmass, 
         largemass, nsmallbodies, inner, outer, alpha, returnFigure=True)
 
     maxdiff = finalMass*0.05
