@@ -214,7 +214,8 @@ def createBigin(totalMass, smallMass, largeMass, nSmall,
         bodyname = bodyType[i] + '{:04}'.format(i)
         outstr += writeBody(bodyname, finalMass[i]*earthmass2sunmass, finalSemi[i], 
                         ecc[i], inc[i], littleOm[i], bigOm[i], meananom[i])
-
+    #remove the final blank line
+    outstr = outstr[:-1]
     return outstr
 
 
