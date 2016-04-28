@@ -193,7 +193,7 @@ def writeBody(bodyname, mass, semimajor,
     """write out a line for a single body in format of Mercury big.in file
     """
     bodystr= """ {} m={:.6e} r=0.1 d=3
- {:.2e} {:.7e} {:.4e} {:.4e} {:.4e} {:.4e} 0.0 0.0 0.0
+ {:.6e} {:.7e} {:.4e} {:.4e} {:.4e} {:.4e} 0.0 0.0 0.0
 """.format(bodyname, mass, semimajor, ecc, inc, littleOm, bigOm, meananom)
     return bodystr
 
