@@ -7,7 +7,7 @@ import numpy as np
 def test_import():
     """Can we import diskmaker successfully?"""
     import diskmaker
-    from diskmaker.create import calcSemis
+    from diskmaker.create import calcSemis, calcMutualHill, createBigin
 
 
 def test_create():
@@ -22,7 +22,7 @@ def test_create():
     nsmallbodies = 200
     inner = 0.2
     outer = 4.0
-    alpha = 3/2
+    alpha = 3./2.
     #####
 
     finalSemi, finalMass, bodyType, fig = calcSemis(totalmass, smallmass, 
@@ -30,3 +30,5 @@ def test_create():
 
     maxdiff = finalMass*0.05
     assert np.abs((np.sum(finalMass) - totalmass)/totalmass) < 0.05
+
+
